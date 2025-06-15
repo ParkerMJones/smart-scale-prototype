@@ -55,7 +55,16 @@ export function parseScaleData(data: DataView): ScaleReading | null {
 
           if (rawWeight > 0 && rawWeight < 50000) {
             const unit = UNIT_MAP[unitCode] || "g";
-            const weight = (sign * rawWeight) / (unitCode === 2 ? 10 : 1);
+            // ESN00: Different units need different divisors
+            let divisor = 1;
+            if (unit === "g") {
+              divisor = 10; // grams need division by 10
+            } else if (unit === "oz") {
+              divisor = 100; // ounces need division by 100
+            } else if (unit === "fl oz" || unit === "ml") {
+              divisor = 10; // fluid measurements typically divide by 10
+            }
+            const weight = (sign * rawWeight) / divisor;
             console.log(
               `Method 1 - Weight: ${weight}${unit}, Raw: ${rawWeight}, Unit code: ${unitCode}`
             );
@@ -90,7 +99,15 @@ export function parseScaleData(data: DataView): ScaleReading | null {
                 : true;
 
             const unit = UNIT_MAP[unitCode] || "g";
-            const divisor = unitCode === 2 || unitCode >= 3 ? 10 : 1;
+            // ESN00: Different units need different divisors
+            let divisor = 1;
+            if (unit === "g") {
+              divisor = 10; // grams need division by 10
+            } else if (unit === "oz") {
+              divisor = 100; // ounces need division by 100
+            } else if (unit === "fl oz" || unit === "ml") {
+              divisor = 10; // fluid measurements typically divide by 10
+            }
             const weight = (sign * rawWeight) / divisor;
 
             if (weight > 0 && weight <= 5000) {
